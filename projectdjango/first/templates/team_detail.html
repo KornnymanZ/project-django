@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>{{ team.name }} - Team Board</h2>
+        <a href="{% url 'team' %}" class="btn btn-secondary">Back to My Teams</a>
+    </div>
+
+    <div class="row">
+        <!-- New Post Form Column -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm position-sticky" style="top: 20px;">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Create a New Post</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div id="additional-files-container"></div>
+                        <button type="button" class="btn btn-outline-secondary btn-sm mb-3 w-100" id="add-file-btn">
+                            <strong>+</strong> Add Another File
+                        </button>
+                        <button type="submit" class="btn btn-primary w-100">Post to Team</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts Feed Column -->
+        <div class="col-md-8">
+            {% if posts %}
+            {% for post in posts %}
+            <div class="card shadow-sm mb-4" id="post-{{ post.id }}">
+                <div class="card-header d-flex justify-content-between align-items-center bg-body-tertiary">
+                    <strong class="text-body">{{ post.title }}</strong>
+                    <div>
+                        <small class="text-muted me-2">{{ post.created_at|date:"M d, Y h:i A" }}</small>
+
+                        {% if post.author == app_profile %}
+                        <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-primary"
+                            title="Edit Post">✏️ Edit</a>
+                        <form method="POST" action="{% url 'delete_post' post.id %}" class="d-inline"
+                            onsubmit="return confirm('Are you sure you want to permanently delete this post?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete Post">🗑️
+                                Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-3 text-muted">Posted by {{ post.author.name|default:"Unknown" }}</h6>
+
+                    {% if post.due_date %}
+                    <div class="mb-3">
+                        <span class="badge bg-warning text-dark border px-3 py-2 shadow-sm rounded-pill">
+                            ⏰ Due: {{ post.due_date|date:"F j, Y, h:i A" }}
+                        </span>
+                    </div>
+                    {% endif %}
+
+                    <div class="card-text mb-3 position-relative post-body-container">
+                        {{ post.body|urlize|linebreaks }}
+                    </div>
+                    <button class="btn btn-link p-0 mb-3 text-decoration-none see-more-btn"
+                        style="display: none; font-size: 0.9rem; font-weight: 600;">See More</button>
+
+                    {% if post.attachments.all %}
+                    <div class="mt-3">
+                        <strong>Attachments:</strong>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            {% for attachment in post.attachments.all %}
+                            <div class="p-2 border rounded bg-body-tertiary d-inline-block">
+                                <span class="badge bg-secondary me-2">File</span>
+                                <a href="{{ attachment.file.url }}" download class="text-decoration-none text-primary">
+                                    <strong>{{ attachment.filename }}</strong>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Comments UI Section -->
+                    <hr class="mt-4 mb-3">
+                    <div class="px-3 pb-3 pt-2 bg-body-tertiary rounded mt-2">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="mb-0">Comments ({{ post.comments.count }})</h6>
+                            <button class="btn btn-sm btn-link text-decoration-none text-muted p-0" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#collapseComments{{ post.id }}"
+                                aria-expanded="true" aria-controls="collapseComments{{ post.id }}">
+                                Show / Hide
+                            </button>
+                        </div>
+
+                        <div class="collapse show" id="collapseComments{{ post.id }}">
+                            {% for comment in post.comments.all %}
+                            <div class="mb-3 p-3 bg-body rounded shadow-sm border border-secondary-subtle">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong>{{ comment.author.name|default:"Unknown" }}</strong>
+                                    <small class="text-muted">{{ comment.created_at|date:"M d, Y h:i A" }}</small>
+                                </div>
+                                <div class="mb-2" style="font-size: 0.95rem;">
+                                    {{ comment.body|urlize|linebreaks }}
+                                </div>
+
+                                {% if comment.attachments.all %}
+                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                    {% for attachment in comment.attachments.all %}
+                                    <div class="p-1 border rounded bg-body-tertiary d-inline-block"
+                                        style="font-size: 0.85rem;">
+                                        <span class="badge bg-secondary me-1">File</span>
+                                        <a href="{{ attachment.file.url }}" download
+                                            class="text-decoration-none text-primary">
+                                            <strong>{{ attachment.filename }}</strong>
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+
+                            <div class="mt-3 border-top border-secondary-subtle pt-3">
+                                <button type="button" class="btn btn-sm btn-outline-secondary text-body fw-bold w-100"
+                                    onclick="toggleCommentForm({{ post.id }})">
+                                    💬 Write a Comment...
+                                </button>
+                            </div>
+
+                            <form id="comment-form-{{ post.id }}" method="POST" action="{% url 'add_comment' post.id %}"
+                                enctype="multipart/form-data"
+                                class="mt-3 p-3 bg-body rounded shadow-sm border border-secondary-subtle"
+                                style="display: none; transition: max-height 0.3s ease-out;">
+                                {% csrf_token %}
+                                <div class="mb-2">
+                                    {{ comment_form.as_p }}
+                                </div>
+                                <div id="comment-files-container-{{ post.id }}"></div>
+                                <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                                        onclick="addCommentFile({{ post.id }})">
+                                        <strong>+</strong> Attach File
+                                    </button>
+                                    <div>
+                                        <button type="button" class="btn btn-light btn-sm me-2"
+                                            onclick="toggleCommentForm({{ post.id }})">Cancel</button>
+                                        <button type="submit" class="btn btn-primary btn-sm px-4 shadow-sm">Post
+                                            Reply</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div> <!-- End Collapse Area -->
+                    </div>
+
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="alert alert-secondary text-center shadow-sm" role="alert">
+                <h5 class="alert-heading">No Posts Yet!</h5>
+                <p class="mb-0">There are no posts here yet. Be the first to start the conversation!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('add-file-btn').addEventListener('click', function () {
+        const container = document.getElementById('additional-files-container');
+
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'mb-3';
+
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.name = 'attachments';
+        fileInput.className = 'form-control';
+
+        inputContainer.appendChild(fileInput);
+        container.appendChild(inputContainer);
+    });
+
+    // See More / See Less Logic for Long Posts
+    document.addEventListener("DOMContentLoaded", function () {
+        const postContainers = document.querySelectorAll('.post-body-container');
+
+        postContainers.forEach(container => {
+            // Give 5px wiggle room to prevent unnecessary clipping
+            if (container.scrollHeight > 155) {
+                container.style.maxHeight = '150px';
+                container.style.overflow = 'hidden';
+
+                // Add soft fade gradient at the bottom of the clipping area
+                const overlay = document.createElement('div');
+                overlay.style.position = 'absolute';
+                overlay.style.bottom = '0';
+                overlay.style.left = '0';
+                overlay.style.right = '0';
+                overlay.style.height = '60px';
+                overlay.style.background = 'linear-gradient(transparent, var(--bs-card-bg))';
+                overlay.className = 'fade-overlay';
+                container.appendChild(overlay);
+
+                // Bind to the adjacent "See More" button toggle
+                const btn = container.nextElementSibling;
+                if (btn && btn.classList.contains('see-more-btn')) {
+                    btn.style.display = 'inline-block';
+
+                    btn.addEventListener('click', function () {
+                        if (container.style.maxHeight === '150px') {
+                            container.style.maxHeight = 'none';
+                            overlay.style.display = 'none';
+                            btn.innerText = 'See Less';
+                        } else {
+                            container.style.maxHeight = '150px';
+                            overlay.style.display = 'block';
+                            btn.innerText = 'See More';
+                        }
+                    });
+                }
+            }
+        });
+    });
+
+    // Nested Comment File Attachments Script
+    window.addCommentFile = function (postId) {
+        const container = document.getElementById('comment-files-container-' + postId);
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'mb-2 mt-2';
+
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.name = 'attachments';
+        fileInput.className = 'form-control form-control-sm';
+
+        inputContainer.appendChild(fileInput);
+        container.appendChild(inputContainer);
+    };
+
+    // UI Toggle for clean Comment Input rendering
+    window.toggleCommentForm = function (postId) {
+        const form = document.getElementById('comment-form-' + postId);
+        if (form.style.display === 'none' || form.style.display === '') {
+            form.style.display = 'block';
+        } else {
+            form.style.display = 'none';
+        }
+    };
+
+    // Dynamic Back to Top display threshold
+    window.addEventListener('scroll', function () {
+        const topBtn = document.getElementById('backToTopBtn');
+        if (window.scrollY > 400) {
+            topBtn.style.opacity = '1';
+            topBtn.style.pointerEvents = 'auto';
+        } else {
+            topBtn.style.opacity = '0';
+            topBtn.style.pointerEvents = 'none';
+        }
+    });
+
+    window.scrollToTop = function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+</script>
+
+<!-- Floating Back to Top Token Button -->
+<button onclick="scrollToTop()" id="backToTopBtn" class="btn btn-primary rounded-circle shadow-lg"
+    style="position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; z-index: 1000; font-size: 1.2rem;">
+    ⬆️
+</button>
+{% endblock %}

@@ -1,0 +1,29 @@
+/* Global Unified Hover Effects */
+.transition-hover {
+    transition: all 0.2s ease-in-out;
+}
+
+.transition-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important;
+}
+
+/* FullCalendar Component Dark Mode Binding */
+.fc {
+    --fc-border-color: var(--bs-border-color);
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: var(--bs-body-bg);
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+    border-color: var(--bs-border-color);
+}
+
+.fc-col-header-cell-cushion, .fc-daygrid-day-number {
+    color: var(--bs-body-color) !important;
+    text-decoration: none;
+}
+
+.fc .fc-daygrid-day.fc-day-today {
+    background-color: var(--bs-tertiary-bg);
+}

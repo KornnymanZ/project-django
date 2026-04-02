@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Edit Post</h2>
+        <a href="{% url 'team_detail' team_id %}" class="btn btn-secondary">Back to Team Board</a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Update Your Post</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        
+                        <div id="additional-files-container"></div>
+                        <button type="button" class="btn btn-outline-secondary btn-sm mb-3 w-100" id="add-file-btn">
+                            <strong>+</strong> Attach More Files
+                        </button>
+                        <button type="submit" class="btn btn-success w-100">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('add-file-btn').addEventListener('click', function() {
+        const container = document.getElementById('additional-files-container');
+        
+        const inputContainer = document.createElement('div');
+        inputContainer.className = 'mb-3';
+        
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.name = 'attachments';
+        fileInput.className = 'form-control';
+        
+        inputContainer.appendChild(fileInput);
+        container.appendChild(inputContainer);
+    });
+</script>
+{% endblock %}

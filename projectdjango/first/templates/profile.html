@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <!-- Profile Sidebar / Details -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow border-0 rounded-4">
+                <div class="card-body text-center p-5">
+                    {% if app_profile.profile_picture %}
+                    <img src="{{ app_profile.profile_picture.url }}" alt="Avatar" class="rounded-circle shadow-sm mb-4" style="width: 150px; height: 150px; object-fit: cover; border: 4px solid #fff; outline: 2px solid rgba(0,0,0,0.1);">
+                    {% else %}
+                    <div class="rounded-circle shadow-sm mx-auto bg-primary d-flex justify-content-center align-items-center text-white mb-4" style="width: 150px; height: 150px; font-size: 3.5rem; border: 4px solid #fff; outline: 2px solid rgba(0,0,0,0.1);">
+                        {{ app_profile.name|make_list|first|upper }}
+                    </div>
+                    {% endif %}
+                    
+                    <h3 class="mb-1 fw-bold">{{ app_profile.name|default:"Unknown User" }}</h3>
+                    <p class="text-muted mb-2">{{ app_profile.email }}</p>
+                    <span class="badge bg-light text-dark border mb-4">SID: {{ app_profile.sid|default:"Not Set" }}</span>
+
+                    <!-- Update Form Collapse Toggle -->
+                    <div class="d-grid mt-2">
+                        <button class="btn btn-outline-primary shadow-sm rounded-pill" type="button" data-bs-toggle="collapse" data-bs-target="#editProfileCollapse">
+                            Update Profile Picture
+                        </button>
+                    </div>
+
+                    <div class="collapse text-start mt-3" id="editProfileCollapse">
+                        <div class="card card-body bg-light rounded-4 border-0 shadow-sm p-4">
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <div class="d-grid mt-3">
+                                    <button type="submit" class="btn btn-primary rounded-pill">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Joined Teams Dashboard -->
+        <div class="col-lg-8">
+            <h4 class="mb-4 fw-bold">My Teams</h4>
+            {% if teams %}
+            <div class="row g-4">
+                {% for team in teams %}
+                <div class="col-md-6 col-lg-6">
+                    <div class="card h-100 shadow border-0 rounded-4 overflow-hidden transition-hover">
+                        <!-- Top Accent Banner mimicking Team layouts -->
+                        <div class="bg-primary text-white p-4 text-center">
+                            <h4 class="mb-0 fw-bold">{{ team.name }}</h4>
+                        </div>
+                        <div class="card-body p-4 text-center d-flex flex-column justify-content-center">
+                            <div class="mb-4">
+                                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill fs-6 shadow-sm mb-3">
+                                    👥 {{ team.groupmembers.count }} Members
+                                </span>
+                                
+                                <ul class="list-group list-group-flush text-start">
+                                    {% for member in team.groupmembers.all %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                            <span>{{ member.name|default:"Unnamed Member" }}</span>
+                                            {% if member.email %}
+                                                <span class="badge bg-secondary rounded-pill">{{ member.email }}</span>
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div class="mt-auto d-grid">
+                                <a href="{% url 'team_detail' team.id %}" class="btn btn-primary shadow-sm rounded-pill py-2">
+                                    Open Board
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card shadow-sm border-0 bg-light rounded-4">
+                <div class="card-body p-5 text-center text-muted">
+                    <h5>You haven't joined any teams yet!</h5>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

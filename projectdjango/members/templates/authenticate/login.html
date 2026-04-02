@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="card shadow-lg border-0 rounded-4 p-5 text-center bg-body-tertiary" style="max-width: 450px; width: 100%;">
+        <div class="mb-4">
+            <h2 class="fw-bold mb-3">Welcome Back</h2>
+            <p class="text-muted">Sign in to your account to continue</p>
+        </div>
+
+        <div class="d-grid gap-3 mt-4 mb-4">
+            <a href="{% provider_login_url 'google' %}" class="btn btn-outline-secondary bg-body rounded-pill py-3 d-flex align-items-center justify-content-center fw-bold transition-hover fs-5">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 24px; height: 24px; margin-right: 12px;">
+                Continue with Google
+            </a>
+        </div>
+        
+        <p class="text-muted mt-3 mb-0">Don't have an account? <a href="{% url 'register_user' %}" class="text-decoration-none fw-bold text-primary">Create One</a></p>
+    </div>
+</div>
+
+{% endblock %}

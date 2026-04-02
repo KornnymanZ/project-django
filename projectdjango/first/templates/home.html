@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- FullCalendar Library CDN -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<div class="row min-vh-100 bg-body-tertiary py-5">
+    {% if user.is_authenticated %}
+
+    <div class="col-lg-8 mx-auto mb-5">
+        <h2 class="fw-bold mb-4">Dashboard Overview</h2>
+
+        <!-- Dashboard Calendar Widget -->
+        <div class="card shadow border-0 rounded-4 mb-5">
+            <div class="card-body p-4">
+                <div id='calendar'></div>
+            </div>
+        </div>
+
+        <!-- Upcoming Due Dates Linear Feed -->
+        <div class="card shadow border-0 rounded-4">
+            <div class="card-header bg-transparent border-0 pt-4 pb-2">
+                <h4 class="fw-bold mb-0">Upcoming due date</h4>
+            </div>
+            <div class="card-body p-0">
+                {% if upcoming_posts %}
+                <ul class="list-group list-group-flush rounded-bottom-4">
+                    {% for post in upcoming_posts %}
+                    <li
+                        class="list-group-item d-flex justify-content-between align-items-center py-4 px-4 border-bottom">
+                        <div>
+                            <h5 class="mb-2 text-primary fw-bold">{{ post.title }}</h5>
+                            <small class="text-muted d-block">
+                                Operating under Team: <strong>{{ post.team.name }}</strong>
+                            </small>
+                            <small class="text-muted">Posted by: {{ post.author.name|default:"Unknown" }}</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="badge bg-warning text-dark border shadow-sm rounded-pill mb-2 px-3 py-2 fs-6">
+                                ⏰ {{ post.due_date|date:"M d, Y h:i A" }}
+                            </span>
+                            <a href="{% url 'team_detail' post.team.id %}#post-{{ post.id }}"
+                                class="btn btn-outline-primary btn-sm d-block mt-2 rounded-pill px-4 shadow-sm">View
+                                Post</a>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <div class="text-center text-muted p-5">
+                    <h5 class="mb-0">You have no upcoming deadlines natively across any active teams!</h5>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+
+    {{ events_list|json_script:"calendar-events-data" }}
+    <style>
+        .fc a {
+            color: var(--bs-primary) !important;
+            text-decoration: none;
+        }
+    </style>
+    <script>
+        // Boot FullCalendar precisely onto target ID injection 
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var eventsData = JSON.parse(document.getElementById('calendar-events-data').textContent);
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek'
+                },
+                events: eventsData,
+                eventClick: function (info) {
+                    // Override natively triggering default URL mappings successfully without iframe failures 
+                    if (info.event.url) {
+                        window.open(info.event.url, "_self");
+                        info.jsEvent.preventDefault();
+                    }
+                },
+                height: 'auto',
+                aspectRatio: 1.5
+            });
+
+            calendar.render();
+        });
+    </script>
+
+    {% else %}
+    <div class="col-lg-6 mx-auto text-center mt-5">
+        <h1 class="display-5 fw-bold mb-4">Welcome to CEPPM</h1>
+        <p class="lead text-muted mb-5">Please login or register to get started</p>
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg rounded-pill px-5 shadow-sm me-3">Login</a>
+        <a href="{% url 'register_user' %}"
+            class="btn btn-outline-primary btn-lg rounded-pill px-5 shadow-sm">Register</a>
+    </div>
+    {% endif %}
+</div>
+
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+</style>
+{% endblock %}

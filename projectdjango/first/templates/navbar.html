@@ -1,0 +1,104 @@
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="{%url 'home' %}">Navbar</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <!-- <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="{%url 'home' %}">Home</a>
+        </li> -->
+
+        {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            {% with unread=request.user.app_profile.unread_notifications.count %}
+            🔔 <span class="badge bg-danger rounded-pill">{{ unread }}</span>
+            {% endwith %}
+          </a>
+          <ul class="dropdown-menu shadow" style="width: 300px; max-height: 400px; overflow-y: auto;">
+            <li>
+              <h6 class="dropdown-header">Notifications</h6>
+            </li>
+            {% if request.user.app_profile %}
+            {% for note in request.user.app_profile.notifications.all|slice:":10" %}
+            <li>
+              <a class="dropdown-item border-bottom {% if not note.is_read %}fw-bold bg-light{% endif %}"
+                href="{% url 'read_notification' note.id %}" style="white-space: normal; font-size: 0.9rem;">
+                <small class="text-muted d-block">{{ note.created_at|date:"M d g:i A" }}</small>
+                {{ note.message }}
+              </a>
+            </li>
+            {% empty %}
+            <li><span class="dropdown-item text-muted" style="font-size: 0.9rem;">No new notifications.</span></li>
+            {% endfor %}
+            {% endif %}
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'profile' %}">My Profile</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'team' %}">My Team</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'login' %}">Login</a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'register_user' %}">Register</a>
+        </li>
+        {% endif %}
+
+
+
+        <!-- Global Dark Mode Toggle Switch -->
+        <li class="nav-item d-flex align-items-center ms-lg-3 mt-3 mt-lg-0 border-start ps-lg-3">
+          <button id="themeToggleBtn"
+            class="btn btn-outline-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+            style="width: 40px; height: 40px; transition: transform 0.2s;" title="Toggle Dark/Light Mode">
+            <span id="themeIcon" style="font-size: 1.1rem;">🌙</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- JavaScript Storage Logic Engine seamlessly handling global Dark Mode toggles avoiding white flashes instantly -->
+<script>
+  function initializeThemeToggle() {
+    const themeIcon = document.getElementById('themeIcon');
+    const updateIcon = () => {
+      const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+      themeIcon.innerText = currentTheme === 'dark' ? '☀️' : '🌙';
+    };
+
+    // Instantiate initial state naturally matching memory storage cleanly
+    updateIcon();
+
+    // Bind physical clicks routing DOM variables actively locally and globally
+    document.getElementById('themeToggleBtn').addEventListener('click', function (e) {
+      e.preventDefault();
+
+      // Animate rotation subtly enhancing premium feel during active toggle switch
+      this.style.transform = 'rotate(360deg)';
+      setTimeout(() => this.style.transform = 'rotate(0deg)', 200);
+
+      const rootHtml = document.documentElement;
+      const newTheme = rootHtml.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+
+      rootHtml.setAttribute('data-bs-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateIcon();
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initializeThemeToggle);
+</script>
