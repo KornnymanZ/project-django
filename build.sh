@@ -4,6 +4,8 @@ set -o errexit
 
 pip install -r requirements.txt
 
+# Clear stale static cache so Django Admin CSS/JS is always regenerated fresh
+rm -rf projectdjango/staticfiles
 python projectdjango/manage.py collectstatic --no-input
 python projectdjango/manage.py migrate
 
