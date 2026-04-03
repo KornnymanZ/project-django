@@ -4,9 +4,9 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
-from django_q.tasks import async_task, schedule
 from .models import Team, Post, PostAttachment, Comment, CommentAttachment, Notification
 from .forms import PostForm, CommentForm, ProfileUpdateForm
+from .tasks import notify_team_of_new_post, send_due_date_reminder
 
 def home(request):
     events = []
@@ -71,14 +71,14 @@ def team_detail(request, team_id):
             for f in files:
                 PostAttachment.objects.create(post=post, file=f)
                 
-            # Fire instant background async notification to the targeted teammates
-            async_task('first.tasks.notify_team_of_new_post', post.id)
+            # Fire notification to teammates synchronously (no background worker needed)
+            notify_team_of_new_post(post.id)
             
             # Check for due date and spawn negative offset reminder if valid
             if post.due_date:
                 reminder_time = post.due_date - timedelta(days=2)
                 if reminder_time > timezone.now():
-                    schedule('first.tasks.send_due_date_reminder', post.id, schedule_type='O', next_run=timezone.now() + timedelta(minutes=1))
+                    send_due_date_reminder(post.id)
                 
             return redirect('team_detail', team_id=team.id)
     else:
