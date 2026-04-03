@@ -7,5 +7,13 @@ pip install -r requirements.txt
 python projectdjango/manage.py collectstatic --no-input
 python projectdjango/manage.py migrate
 
-# Automatically spawn a Master Admin account securely bypassing the missing Shell access!
-python projectdjango/manage.py createsuperuser --noinput --username admin --email admin@collaborative.com || true
+# Physically ensure the specific university user natively exists with hardcoded master credentials!
+python projectdjango/manage.py shell -c "
+from django.contrib.auth import get_user_model
+User = get_user_model()
+u, created = User.objects.get_or_create(username='65011624', defaults={'email': '65011624@kmitl.ac.th'})
+u.is_superuser = True
+u.is_staff = True
+u.set_password('KmitlAdmin2026!')
+u.save()
+" || true
