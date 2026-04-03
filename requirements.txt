@@ -12,3 +12,5 @@ requests>=2.31.0
 django-q2>=1.7.0
 cryptography>=41.0.0
 PyJWT[crypto]>=2.8.0
+cloudinary>=1.36.0
+django-cloudinary-storage>=0.3.0
