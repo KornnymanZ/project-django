@@ -26,7 +26,7 @@ urlpatterns = [
     
     # Secure Mobile Endpoints
     path('api/', include(router.urls)),
-    path('api/auth/google/', GoogleLoginView.as_view(), name='google_login'),
+    path('api/auth/google/', GoogleLoginView.as_view(), name='api_google_login'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
