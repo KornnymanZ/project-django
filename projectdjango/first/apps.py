@@ -5,6 +5,6 @@ class FirstConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'first'
 
-def ready(self):
-    import first.signals
-    print("WORKING: SIGNALS IS IMPORTED")
+    def ready(self):
+        import first.signals
+        print("WORKING: SIGNALS IS IMPORTED")
