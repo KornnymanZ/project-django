@@ -27,8 +27,12 @@ def set_user_group(sender, request, user, **kwargs):
     email = user.email.lower() if user.email else ""
 
     # Ensure the AppUser is linked to this user if it exists and isn't linked
-    if hasattr(user, 'app_profile') and user.app_profile is not None:
+    try:
         app_profile = user.app_profile
+    except AppUser.DoesNotExist:
+        app_profile = None
+
+    if app_profile is not None:
         # If it's linked but missing a name, fill it in!
         if not app_profile.name and (user.first_name or user.last_name):
             app_profile.name = f"{user.first_name} {user.last_name}".strip()
