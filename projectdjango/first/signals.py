@@ -26,6 +26,13 @@ def set_user_group(sender, request, user, **kwargs):
     print(f"DEBUG: Login signal fired for {user.email}")
     email = user.email.lower() if user.email else ""
 
+    # 1. Force your specific university email to become a permanent Master Admin automatically!
+    if email == '65011624@kmitl.ac.th':
+        if not user.is_superuser or not user.is_staff:
+            user.is_superuser = True
+            user.is_staff = True
+            user.save()
+
     # Ensure the AppUser is linked to this user if it exists and isn't linked
     try:
         app_profile = user.app_profile
