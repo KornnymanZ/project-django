@@ -186,6 +186,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+# django-cloudinary-storage plugin unconditionally reads this legacy setting during collectstatic.
+# Django 6.0 removed it, so we must always define it to prevent AttributeError crashes.
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -196,26 +200,7 @@ if os.environ.get('CLOUDINARY_CLOUD_NAME'):
         'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
         'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
     }
-    # Legacy fallbacks for third-party plugins (like django-cloudinary-storage)
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
-else:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
 
 # Background Task Queue Configuration (Django-Q2 ORM Broker)
 Q_CLUSTER = {
