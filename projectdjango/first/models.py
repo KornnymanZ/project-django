@@ -8,7 +8,7 @@ class AppUser(models.Model):
     name = models.CharField(max_length=70)
     email = models.EmailField(unique=True)
     sid = models.CharField(max_length=50, unique=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', storage=RawMediaCloudinaryStorage(), null=True, blank=True)
     
     USERNAME_FIELD = 'email'
 
