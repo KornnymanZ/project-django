@@ -185,8 +185,6 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 # Render Static File Architecture
 if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-    # WHITENOISE_MANIFEST_STRICT prevents build crashes if some third-party CSS references missing icons (like Django Admin)
-    WHITENOISE_MANIFEST_STRICT = False
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -200,14 +198,13 @@ if os.environ.get('CLOUDINARY_CLOUD_NAME'):
     }
     # Legacy fallbacks for third-party plugins (like django-cloudinary-storage)
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     
     STORAGES = {
         "default": {
             "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
         },
         "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
         },
     }
 else:
