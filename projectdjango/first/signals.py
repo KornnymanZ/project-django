@@ -17,8 +17,7 @@ def link_to_app_user(sender, request, user, **kwargs):
         app_profile.email = email
         app_profile.save()
     else:
-        # Optional: If they aren't pre-registered, you could log them out 
-        # or delete the user if you want strict "Invite Only"
+        
         pass
 
 @receiver(user_logged_in)
@@ -26,7 +25,6 @@ def set_user_group(sender, request, user, **kwargs):
     print(f"DEBUG: Login signal fired for {user.email}")
     email = user.email.lower() if user.email else ""
 
-    # 1. Force your specific university email to become a permanent Master Admin automatically!
     if email == '65011624@kmitl.ac.th':
         if not user.is_superuser or not user.is_staff:
             user.is_superuser = True
@@ -53,10 +51,10 @@ def set_user_group(sender, request, user, **kwargs):
             app_profile.save()
             print(f"DEBUG: Auto-linked pre-made User to AppUser for {email}")
 
-    # Check if they already have a group to avoid redundant database hits
+    # Check if they already have a group
     if not user.groups.exists() and email:
         
-        # Logic: Adjust this list for your Advisors
+        
         advisors = ['advisor@gmail.com', 'admin@gmail.com']
         
         if email in advisors:
@@ -72,8 +70,8 @@ def assign_group_to_new_social_user(request, sociallogin, **kwargs):
     user = sociallogin.user
     email = user.email.lower()
 
-    # Define your logic
-    advisors = ['advisor@gmail.com', 'student@gmail.com'] # Test with yours
+    
+    advisors = ['advisor@gmail.com', 'student@gmail.com'] 
     
     if email in advisors:
         group_name = "Advisor"
@@ -83,6 +81,6 @@ def assign_group_to_new_social_user(request, sociallogin, **kwargs):
     group, created = Group.objects.get_or_create(name=group_name)
     user.groups.add(group)
     
-    # Save the user just in case, though adding to groups usually saves the M2M relation automatically
+
     user.save()
     print(f"DONE: {user.email} added to {group_name} group.")

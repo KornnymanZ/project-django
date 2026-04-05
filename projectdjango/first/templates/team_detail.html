@@ -189,12 +189,12 @@
         const postContainers = document.querySelectorAll('.post-body-container');
 
         postContainers.forEach(container => {
-            // Give 5px wiggle room to prevent unnecessary clipping
+
             if (container.scrollHeight > 155) {
                 container.style.maxHeight = '150px';
                 container.style.overflow = 'hidden';
 
-                // Add soft fade gradient at the bottom of the clipping area
+
                 const overlay = document.createElement('div');
                 overlay.style.position = 'absolute';
                 overlay.style.bottom = '0';
@@ -205,7 +205,7 @@
                 overlay.className = 'fade-overlay';
                 container.appendChild(overlay);
 
-                // Bind to the adjacent "See More" button toggle
+
                 const btn = container.nextElementSibling;
                 if (btn && btn.classList.contains('see-more-btn')) {
                     btn.style.display = 'inline-block';
@@ -241,7 +241,6 @@
         container.appendChild(inputContainer);
     };
 
-    // UI Toggle for clean Comment Input rendering
     window.toggleCommentForm = function (postId) {
         const form = document.getElementById('comment-form-' + postId);
         if (form.style.display === 'none' || form.style.display === '') {
@@ -251,7 +250,7 @@
         }
     };
 
-    // Dynamic Back to Top display threshold
+    // Back to Top
     window.addEventListener('scroll', function () {
         const topBtn = document.getElementById('backToTopBtn');
         if (window.scrollY > 400) {

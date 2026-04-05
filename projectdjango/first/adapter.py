@@ -16,7 +16,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             except User.DoesNotExist:
                 pass
 
-        # 2. Pull first_name / last_name from the Google payload and fill them out
+        # 2. Pull first_name / last_name from the Google and fill them 
         if user and user.pk:
             extra_data = sociallogin.account.extra_data
             first_name = extra_data.get('given_name', '')

@@ -16,12 +16,12 @@ def home(request):
         app_profile = request.user.app_profile
         now = timezone.now()
         
-        # Globally extract all teams the user physically belongs to
+        
         teams = app_profile.teams.all()
-        # Filter all posts across all valid teams that possess any distinct due_date 
+        # Filter all posts from all teams that the user are in with due date
         due_posts = Post.objects.filter(team__in=teams, due_date__isnull=False).order_by('due_date')
         
-        # Explicitly array mapping the upcoming components
+        
         upcoming_posts = due_posts.filter(due_date__gte=now)
         
         for post in due_posts:
@@ -71,10 +71,10 @@ def team_detail(request, team_id):
             for f in files:
                 PostAttachment.objects.create(post=post, file=f)
                 
-            # Fire notification to teammates synchronously (no background worker needed)
+            # Send notification to team members
             notify_team_of_new_post(post.id)
             
-            # Check for due date and spawn negative offset reminder if valid
+            # Check for due date and send reminder
             if post.due_date:
                 reminder_time = post.due_date - timedelta(days=2)
                 if reminder_time > timezone.now():

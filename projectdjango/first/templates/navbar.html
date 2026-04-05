@@ -58,7 +58,7 @@
 
 
 
-        <!-- Global Dark Mode Toggle Switch -->
+        <!-- Global Dark Mode Toggle -->
         <li class="nav-item d-flex align-items-center ms-lg-3 mt-3 mt-lg-0 border-start ps-lg-3">
           <button id="themeToggleBtn"
             class="btn btn-outline-secondary rounded-circle shadow-sm d-flex align-items-center justify-content-center"
@@ -71,7 +71,7 @@
   </div>
 </nav>
 
-<!-- JavaScript Storage Logic Engine seamlessly handling global Dark Mode toggles avoiding white flashes instantly -->
+
 <script>
   function initializeThemeToggle() {
     const themeIcon = document.getElementById('themeIcon');
@@ -80,14 +80,14 @@
       themeIcon.innerText = currentTheme === 'dark' ? '☀️' : '🌙';
     };
 
-    // Instantiate initial state naturally matching memory storage cleanly
+
     updateIcon();
 
-    // Bind physical clicks routing DOM variables actively locally and globally
+
     document.getElementById('themeToggleBtn').addEventListener('click', function (e) {
       e.preventDefault();
 
-      // Animate rotation subtly enhancing premium feel during active toggle switch
+
       this.style.transform = 'rotate(360deg)';
       setTimeout(() => this.style.transform = 'rotate(0deg)', 200);
 

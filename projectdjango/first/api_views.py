@@ -38,7 +38,7 @@ class PostViewSet(viewsets.ModelViewSet):
         return Post.objects.none()
 
     def perform_create(self, serializer):
-        # Implicitly tie the created Post directly to the authenticating user Profile
+        # Link the post to the author
         serializer.save(author=self.request.user.app_profile)
 
 
@@ -70,7 +70,7 @@ class GoogleLoginView(APIView):
         if not token:
             return Response({'error': 'id_token required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Handshake with Google instantly to verify the mobile device token authenticity
+        # Verify the mobile device token authenticity
         response = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={token}')
         if response.status_code != 200:
             return Response({'error': 'Invalid Google token'}, status=status.HTTP_400_BAD_REQUEST)
@@ -89,7 +89,7 @@ class GoogleLoginView(APIView):
             defaults={'email': email, 'name': name}
         )
         
-        # Bypass password systems gracefully providing a standard Token Payload!
+        # Bypass password systems by providing a standard Token Payload
         refresh = RefreshToken.for_user(user)
         
         return Response({

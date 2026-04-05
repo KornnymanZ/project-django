@@ -18,10 +18,8 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-#zn#62300l(gvfxp7_go&=n71(dehh4$$^dil393p4bj1b&ktv')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -123,10 +121,10 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = [
     
-    # Needed to login by username in Django admin, regardless of `allauth`
+    # For login with username in django panel
     'django.contrib.auth.backends.ModelBackend',
 
-    # `allauth` specific authentication methods, such as login by email
+    
     'allauth.account.auth_backends.AuthenticationBackend',
     
 ]
@@ -134,8 +132,6 @@ AUTHENTICATION_BACKENDS = [
 WSGI_APPLICATION = 'projectdjango.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
 DATABASES = {
     'default': dj_database_url.config(
@@ -145,8 +141,7 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -164,8 +159,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -176,9 +169,6 @@ USE_I18N = True
 USE_TZ = False  
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
-
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
@@ -186,14 +176,11 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 if not DEBUG:
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# django-cloudinary-storage plugin unconditionally reads this legacy setting during collectstatic.
-# Django 6.0 removed it, so we must always define it to prevent AttributeError crashes.
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Cloudinary Remote CDN Blob Storage (Bypasses Render Ephemeral Disk Deletions)
 if os.environ.get('CLOUDINARY_CLOUD_NAME'):
     CLOUDINARY_STORAGE = {
         'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
@@ -202,7 +189,7 @@ if os.environ.get('CLOUDINARY_CLOUD_NAME'):
     }
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# Background Task Queue Configuration (Django-Q2 ORM Broker)
+# Background Task Queue 
 Q_CLUSTER = {
     'name': 'TeamAlertCluster',
     'workers': 4,
@@ -213,13 +200,13 @@ Q_CLUSTER = {
     'queue_limit': 50,
     'cpu_affinity': 1,
     'label': 'Django Q',
-    'orm': 'default'  # Forces Q to use standard backend PostgreSQL cleanly!
+    'orm': 'default'  
 }
 
-# Local Testing - Route emails perfectly into the running server console terminal instead of crashing without SMTP
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# DRF & Stateless JWT Token Configuration
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -229,6 +216,5 @@ REST_FRAMEWORK = {
     )
 }
 
-# Allow external mobile devices/emulators to ping the local server smoothly.
 CORS_ALLOW_ALL_ORIGINS = True
 

@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <!-- Upcoming Due Dates Linear Feed -->
+        <!-- Upcoming Due Dates Feed -->
         <div class="card shadow border-0 rounded-4">
             <div class="card-header bg-transparent border-0 pt-4 pb-2">
                 <h4 class="fw-bold mb-0">Upcoming due date</h4>
@@ -78,7 +78,7 @@
                 },
                 events: eventsData,
                 eventClick: function (info) {
-                    // Override natively triggering default URL mappings successfully without iframe failures 
+
                     if (info.event.url) {
                         window.open(info.event.url, "_self");
                         info.jsEvent.preventDefault();

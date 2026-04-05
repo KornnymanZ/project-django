@@ -1,12 +1,7 @@
-"""
-URL configuration for projectdjango project.
-"""
 from django.contrib import admin
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
-
-# Mobile API Dependencies
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from first.api_views import TeamViewSet, PostViewSet, CommentViewSet, GoogleLoginView
