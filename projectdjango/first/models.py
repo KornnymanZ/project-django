@@ -77,6 +77,11 @@ class CommentAttachment(models.Model):
     file = models.FileField(upload_to='team_comments/', storage=RawMediaCloudinaryStorage())
 
     @property
+    def filename(self):
+        import os
+        return os.path.basename(self.file.name)
+
+    @property
     def download_url(self):
         """Forces the Cloudinary file to be downloaded by adding an attachment flag."""
         url = self.file.url
