@@ -43,7 +43,9 @@ class PostViewSet(viewsets.ModelViewSet):
         
         # Manually handle multi-file attachments if present
         files = self.request.FILES.getlist('attachments')
+        print(f"DEBUG API: Received {len(files)} files for Post {post.id}")
         for f in files:
+            print(f"DEBUG API: Uploading {f.name} (Size: {f.size}, Type: {f.content_type})")
             PostAttachment.objects.create(post=post, file=f)
 
 
@@ -66,7 +68,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         
         # Manually handle multi-file attachments if present
         files = self.request.FILES.getlist('attachments')
+        print(f"DEBUG API: Received {len(files)} files for Comment {comment.id}")
         for f in files:
+            print(f"DEBUG API: Uploading {f.name} (Size: {f.size}, Type: {f.content_type})")
             CommentAttachment.objects.create(comment=comment, file=f)
 
 class GoogleLoginView(APIView):
