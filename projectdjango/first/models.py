@@ -42,7 +42,7 @@ class Post(models.Model):
 
 class PostAttachment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='attachments')
-    file = models.FileField(upload_to='team_posts/')
+    file = models.FileField(upload_to='team_posts/', storage=RawMediaCloudinaryStorage())
 
     @property
     def filename(self):
@@ -66,7 +66,7 @@ class Comment(models.Model):
 
 class CommentAttachment(models.Model):
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, related_name='attachments')
-    file = models.FileField(upload_to='team_comments/')
+    file = models.FileField(upload_to='team_comments/', storage=RawMediaCloudinaryStorage())
 
     @property
     def filename(self):
