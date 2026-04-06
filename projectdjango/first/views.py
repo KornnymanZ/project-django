@@ -188,14 +188,41 @@ def download_comment_attachment(request, attachment_id):
     return _proxy_download(attachment.file, attachment.filename)
 
 def _proxy_download(file_field, filename):
-    """Streams a file from Cloudinary through Django to the user's browser."""
-    file_url = file_field.url
+    """Streams a file from Cloudinary through Django using SDK-signed authentication."""
+    import cloudinary.utils
+    import os
     
-    # Fetch the file server-side (Render has the Cloudinary credentials)
-    resp = http_requests.get(file_url, timeout=30)
+    # Extract the public_id from the stored file name (e.g., "media/team_posts/Da_Sheet_abc123")
+    file_name = file_field.name
+    public_id = file_name
+    
+    # Strip file extension for the public_id (Cloudinary stores without extension in public_id)
+    base, ext = os.path.splitext(file_name)
+    file_format = ext.lstrip('.')  # e.g., "pdf"
+    
+    # Generate a signed URL using the Cloudinary SDK (uses API credentials from settings)
+    signed_url, _ = cloudinary.utils.cloudinary_url(
+        base,
+        resource_type="raw",
+        sign_url=True,
+        type="upload",
+        format=file_format
+    )
+    
+    print(f"DEBUG PROXY: Attempting signed URL: {signed_url}")
+    
+    # Fetch the file using the signed/authenticated URL
+    resp = http_requests.get(signed_url, timeout=30)
     
     if resp.status_code != 200:
-        return HttpResponse("File not available.", status=404)
+        # Fallback: try the direct URL in case it's a non-PDF file that works normally
+        direct_url = file_field.url
+        print(f"DEBUG PROXY: Signed URL failed ({resp.status_code}), trying direct: {direct_url}")
+        resp = http_requests.get(direct_url, timeout=30)
+        
+        if resp.status_code != 200:
+            print(f"DEBUG PROXY: Direct URL also failed ({resp.status_code})")
+            return HttpResponse("File not available.", status=404)
     
     content_type, _ = mimetypes.guess_type(filename)
     if not content_type:
