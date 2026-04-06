@@ -71,10 +71,12 @@
                         <strong>Attachments:</strong>
                         <div class="d-flex flex-wrap gap-2 mt-2">
                             {% for attachment in post.attachments.all %}
-                            <div class="p-2 border rounded bg-body-tertiary d-inline-block">
-                                <span class="badge bg-secondary me-2">File</span>
-                                <a href="{{ attachment.file.url }}" download class="text-decoration-none text-primary">
-                                    <strong>{{ attachment.filename }}</strong>
+                            <div class="px-3 py-2 border rounded bg-body-tertiary d-inline-block transition-hover shadow-sm"
+                                style="font-size: 0.9rem;">
+                                <span class="badge bg-primary me-2">File</span>
+                                <a href="{{ attachment.download_url }}" download target="_blank"
+                                    class="text-decoration-none text-primary fw-bold">
+                                    {{ attachment.filename }}
                                 </a>
                             </div>
                             {% endfor %}
@@ -108,12 +110,12 @@
                                 {% if comment.attachments.all %}
                                 <div class="d-flex flex-wrap gap-2 mt-2">
                                     {% for attachment in comment.attachments.all %}
-                                    <div class="p-1 border rounded bg-body-tertiary d-inline-block"
-                                        style="font-size: 0.85rem;">
-                                        <span class="badge bg-secondary me-1">File</span>
-                                        <a href="{{ attachment.file.url }}" download
-                                            class="text-decoration-none text-primary">
-                                            <strong>{{ attachment.filename }}</strong>
+                                    <div class="px-3 py-2 border rounded bg-body-tertiary d-inline-block transition-hover shadow-sm"
+                                        style="font-size: 0.9rem;">
+                                        <span class="badge bg-primary me-2">File</span>
+                                        <a href="{{ attachment.download_url }}" download target="_blank"
+                                            class="text-decoration-none text-primary fw-bold">
+                                            {{ attachment.filename }}
                                         </a>
                                     </div>
                                     {% endfor %}

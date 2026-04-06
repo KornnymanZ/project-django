@@ -19,7 +19,7 @@
 
                     <h3 class="mb-1 fw-bold">{{ app_profile.name|default:"Unknown User" }}</h3>
                     <p class="text-muted mb-2">{{ app_profile.email }}</p>
-                    <span class="badge bg-light text-dark border mb-4">SID: {{ app_profile.sid|default:"Not Set" }}</span>
+                    <span class="badge bg-secondary-subtle text-body border mb-4">SID: {{ app_profile.sid|default:"Not Set" }}</span>
 
                     <!-- Update Form Collapse Toggle -->
                     <div class="d-grid mt-2">
@@ -30,7 +30,7 @@
                     </div>
 
                     <div class="collapse text-start mt-3" id="editProfileCollapse">
-                        <div class="card card-body bg-light rounded-4 border-0 shadow-sm p-4">
+                        <div class="card card-body bg-body-tertiary rounded-4 border shadow-sm p-4">
                             <form method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 {{ form.as_p }}
@@ -86,7 +86,7 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="card shadow-sm border-0 bg-light rounded-4">
+            <div class="card shadow-sm border-0 bg-dark rounded-4">
                 <div class="card-body p-5 text-center text-muted">
                     <h5>You haven't joined any teams yet!</h5>
                 </div>

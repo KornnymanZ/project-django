@@ -49,6 +49,14 @@ class PostAttachment(models.Model):
         import os
         return os.path.basename(self.file.name)
 
+    @property
+    def download_url(self):
+        """Forces the Cloudinary file to be downloaded by adding an attachment flag."""
+        url = self.file.url
+        if 'upload/' in url:
+            return url.replace('upload/', 'upload/fl_attachment/')
+        return url
+
     def __str__(self):
         return self.filename
 
@@ -69,9 +77,12 @@ class CommentAttachment(models.Model):
     file = models.FileField(upload_to='team_comments/', storage=RawMediaCloudinaryStorage())
 
     @property
-    def filename(self):
-        import os
-        return os.path.basename(self.file.name)
+    def download_url(self):
+        """Forces the Cloudinary file to be downloaded by adding an attachment flag."""
+        url = self.file.url
+        if 'upload/' in url:
+            return url.replace('upload/', 'upload/fl_attachment/')
+        return url
 
     def __str__(self):
         return self.filename

@@ -15,17 +15,19 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class PostAttachmentSerializer(serializers.ModelSerializer):
     filename = serializers.ReadOnlyField()
+    download_url = serializers.ReadOnlyField()
 
     class Meta:
         model = PostAttachment
-        fields = ['id', 'file', 'filename']
+        fields = ['id', 'file', 'filename', 'download_url']
 
 class CommentAttachmentSerializer(serializers.ModelSerializer):
     filename = serializers.ReadOnlyField()
+    download_url = serializers.ReadOnlyField()
 
     class Meta:
         model = CommentAttachment
-        fields = ['id', 'file', 'filename']
+        fields = ['id', 'file', 'filename', 'download_url']
 
 class CommentSerializer(serializers.ModelSerializer):
     author = AppUserSerializer(read_only=True)
