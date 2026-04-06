@@ -46,7 +46,8 @@ class PostViewSet(viewsets.ModelViewSet):
         print(f"DEBUG API: Received {len(files)} files for Post {post.id}")
         for f in files:
             print(f"DEBUG API: Uploading {f.name} (Size: {f.size}, Type: {f.content_type})")
-            PostAttachment.objects.create(post=post, file=f)
+            pa = PostAttachment.objects.create(post=post, file=f)
+            print(f"DEBUG API: Saved URL: {pa.file.url}")
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -71,7 +72,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         print(f"DEBUG API: Received {len(files)} files for Comment {comment.id}")
         for f in files:
             print(f"DEBUG API: Uploading {f.name} (Size: {f.size}, Type: {f.content_type})")
-            CommentAttachment.objects.create(comment=comment, file=f)
+            ca = CommentAttachment.objects.create(comment=comment, file=f)
+            print(f"DEBUG API: Saved URL: {ca.file.url}")
 
 class GoogleLoginView(APIView):
     
