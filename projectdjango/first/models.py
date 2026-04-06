@@ -83,7 +83,7 @@ class CommentAttachment(models.Model):
 
     @property
     def download_url(self):
-        """Forces the Cloudinary file to be downloaded by adding an attachment flag."""
+        #Force cloudinary to download the file
         url = self.file.url
         if 'upload/' in url:
             return url.replace('upload/', 'upload/fl_attachment/')
