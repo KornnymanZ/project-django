@@ -73,8 +73,8 @@
                             {% for attachment in post.attachments.all %}
                             <div class="px-3 py-2 border rounded bg-body-tertiary d-inline-block transition-hover shadow-sm"
                                 style="font-size: 0.9rem;">
-                                <span class="badge bg-primary me-2">File</span>
-                                <a href="{{ attachment.download_url }}" download target="_blank"
+                                <span class="badge bg-primary me-2">📎</span>
+                                <a href="{% url 'download_post_attachment' attachment.id %}" target="_blank"
                                     class="text-decoration-none text-primary fw-bold">
                                     {{ attachment.filename }}
                                 </a>
@@ -112,8 +112,8 @@
                                     {% for attachment in comment.attachments.all %}
                                     <div class="px-3 py-2 border rounded bg-body-tertiary d-inline-block transition-hover shadow-sm"
                                         style="font-size: 0.9rem;">
-                                        <span class="badge bg-primary me-2">File</span>
-                                        <a href="{{ attachment.download_url }}" download target="_blank"
+                                        <span class="badge bg-primary me-2">📎</span>
+                                        <a href="{% url 'download_comment_attachment' attachment.id %}" target="_blank"
                                             class="text-decoration-none text-primary fw-bold">
                                             {{ attachment.filename }}
                                         </a>

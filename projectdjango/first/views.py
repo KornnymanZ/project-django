@@ -1,4 +1,7 @@
 import json
+import mimetypes
+import requests as http_requests
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
@@ -171,3 +174,33 @@ def profile_page(request):
         'form': form,
         'teams': teams
     })
+
+@login_required
+def download_post_attachment(request, attachment_id):
+    """Proxy download: fetches from Cloudinary server-side to bypass free-tier PDF block."""
+    attachment = get_object_or_404(PostAttachment, id=attachment_id)
+    return _proxy_download(attachment.file, attachment.filename)
+
+@login_required
+def download_comment_attachment(request, attachment_id):
+    """Proxy download: fetches from Cloudinary server-side to bypass free-tier PDF block."""
+    attachment = get_object_or_404(CommentAttachment, id=attachment_id)
+    return _proxy_download(attachment.file, attachment.filename)
+
+def _proxy_download(file_field, filename):
+    """Streams a file from Cloudinary through Django to the user's browser."""
+    file_url = file_field.url
+    
+    # Fetch the file server-side (Render has the Cloudinary credentials)
+    resp = http_requests.get(file_url, timeout=30)
+    
+    if resp.status_code != 200:
+        return HttpResponse("File not available.", status=404)
+    
+    content_type, _ = mimetypes.guess_type(filename)
+    if not content_type:
+        content_type = 'application/octet-stream'
+    
+    response = HttpResponse(resp.content, content_type=content_type)
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response

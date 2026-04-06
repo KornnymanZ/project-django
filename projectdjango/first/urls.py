@@ -12,5 +12,7 @@ urlpatterns = [
     path('post/<int:post_id>/comment/', views.add_comment, name='add_comment'),
     path('notification/<int:note_id>/', views.read_notification, name='read_notification'),
     path('profile/', views.profile_page, name='profile'),
+    path('download/post/<int:attachment_id>/', views.download_post_attachment, name='download_post_attachment'),
+    path('download/comment/<int:attachment_id>/', views.download_comment_attachment, name='download_comment_attachment'),
 ]
  
