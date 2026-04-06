@@ -39,7 +39,12 @@ class PostViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # Link the post to the author
-        serializer.save(author=self.request.user.app_profile)
+        post = serializer.save(author=self.request.user.app_profile)
+        
+        # Manually handle multi-file attachments if present
+        files = self.request.FILES.getlist('attachments')
+        for f in files:
+            PostAttachment.objects.create(post=post, file=f)
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -57,7 +62,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         return Comment.objects.none()
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user.app_profile)
+        comment = serializer.save(author=self.request.user.app_profile)
+        
+        # Manually handle multi-file attachments if present
+        files = self.request.FILES.getlist('attachments')
+        for f in files:
+            CommentAttachment.objects.create(comment=comment, file=f)
 
 class GoogleLoginView(APIView):
     
