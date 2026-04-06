@@ -11,9 +11,9 @@ from .serializers import TeamSerializer, PostSerializer, CommentSerializer
 User = get_user_model()
 
 class TeamViewSet(viewsets.ReadOnlyModelViewSet):
-    """
-    API endpoint listing all Teams a User is physically assigned to.
-    """
+    
+    #API endpoint listing all Teams a User is in.
+    
     serializer_class = TeamSerializer
     permission_classes = [IsAuthenticated]
 
@@ -24,9 +24,9 @@ class TeamViewSet(viewsets.ReadOnlyModelViewSet):
         return Team.objects.none()
 
 class PostViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint streaming Posts inside Teams the User belongs to.
-    """
+    
+    #API endpoint streaming Posts inside Teams the User belongs to.
+   
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated]
 
@@ -43,9 +43,9 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint managing real-time Comment loops bridging Mobile/Web.
-    """
+    
+    #API endpoint managing real-time Comment.
+    
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
 
@@ -60,9 +60,9 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user.app_profile)
 
 class GoogleLoginView(APIView):
-    """
-    Stateless receptor bypassing local password databases exclusively mapping Mobile Google Sign In tokens structurally into local active JWTs! 
-    """
+    
+    #API Endpoint for google login via mobile token
+    
     permission_classes = [AllowAny]
 
     def post(self, request):

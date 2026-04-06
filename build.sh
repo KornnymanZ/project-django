@@ -4,12 +4,12 @@ set -o errexit
 
 pip install -r requirements.txt
 
-# Clear stale static cache so Django Admin CSS/JS is always regenerated fresh
+#Fix admin panel css
 rm -rf projectdjango/staticfiles
 python projectdjango/manage.py collectstatic --no-input
 python projectdjango/manage.py migrate
 
-# Physically ensure the specific university user natively exists with hardcoded master credentials!
+#Hardcode in account because render wipe the thing
 python projectdjango/manage.py shell -c "
 from django.contrib.auth import get_user_model
 User = get_user_model()

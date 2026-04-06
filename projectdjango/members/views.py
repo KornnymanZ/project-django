@@ -22,7 +22,7 @@ def login_user(request):
             return redirect('login')
     
     else:
-        # Return an 'invalid login' error message.
+        # Return error message.
     
         return render(request, 'authenticate/login.html', {})
     
@@ -38,7 +38,6 @@ def register_user(request):
         form = EmailUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Login natively after creation without explicitly passing the username hook
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, ("Registation Complete"))
             return redirect('home')

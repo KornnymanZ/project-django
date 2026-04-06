@@ -7,7 +7,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
     def pre_social_login(self, request, sociallogin):
         user = sociallogin.user
         
-        # 1. Match/Link existing User account by email
+        #Link existing User account by email
         if not sociallogin.is_existing and 'email' in sociallogin.account.extra_data:
             email = sociallogin.account.extra_data.get('email').lower()
             try:
@@ -16,7 +16,7 @@ class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
             except User.DoesNotExist:
                 pass
 
-        # 2. Pull first_name / last_name from the Google and fill them 
+        #Pull first name / last name from the Google
         if user and user.pk:
             extra_data = sociallogin.account.extra_data
             first_name = extra_data.get('given_name', '')

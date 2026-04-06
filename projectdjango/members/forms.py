@@ -18,7 +18,7 @@ class EmailUserCreationForm(forms.ModelForm):
         if password and password_confirm and password != password_confirm:
             self.add_error('password_confirm', "Passwords don't match")
             
-        # Ensure email is unique across the User model
+        # TO make sure email is unique
         email = cleaned_data.get("email")
         if email and User.objects.filter(email=email).exists():
             self.add_error('email', "A user with that email already exists.")
@@ -28,11 +28,11 @@ class EmailUserCreationForm(forms.ModelForm):
     def save(self, commit=True):
         from allauth.account.models import EmailAddress
         user = super().save(commit=False)
-        # Use email for the underlying username mapping naturally 
+         
         user.username = self.cleaned_data["email"]
         user.set_password(self.cleaned_data["password"])
         if commit:
             user.save()
-            # Intercept and securely inject the Allauth registry!
+            
             EmailAddress.objects.create(user=user, email=user.email, primary=True, verified=True)
         return user
