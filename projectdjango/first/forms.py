@@ -64,6 +64,8 @@ class TeamRequestForm(forms.ModelForm):
         widgets = {
             'team_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter proposed team name'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe your team/project'}),
+            'proposed_members': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+            'proposed_advisors': forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -72,7 +74,6 @@ class TeamRequestForm(forms.ModelForm):
         
         # Filter proposed_members: Only allow AppUsers NOT in any team AND NOT in Advisor group
         # excluding the current_user so they don't select themselves.
-        self.fields['proposed_members'].widget.attrs.update({'class': 'form-select'})
         self.fields['proposed_members'].queryset = AppUser.objects.filter(
             teams__isnull=True, 
             user__groups__name__exact='Student'
@@ -81,7 +82,6 @@ class TeamRequestForm(forms.ModelForm):
         
         # Filter proposed_advisors: Only allow AppUsers IN Advisor group.
         # They can be in multiple teams, so we don't check teams__isnull.
-        self.fields['proposed_advisors'].widget.attrs.update({'class': 'form-select'})
         self.fields['proposed_advisors'].queryset = AppUser.objects.filter(
             user__groups__name__exact='Advisor'
         ).distinct()
