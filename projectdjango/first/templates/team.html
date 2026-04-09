@@ -3,11 +3,9 @@
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>My Teams</h2>
-        {% for group in request.user.groups.all %}
-            {% if group.name == 'Advisor' %}
-            <a href="{% url 'manage_team_requests' %}" class="btn btn-warning">Manage Incoming Requests</a>
-            {% endif %}
-        {% endfor %}
+        {% if request.user.groups.first.name == 'Advisor' %}
+        <a href="{% url 'manage_team_requests' %}" class="btn btn-warning">Incoming Requests</a>
+        {% endif %}
     </div>
 
     {% if teams %}
@@ -44,10 +42,10 @@
         <h4 class="alert-heading">No Teams Yet!</h4>
         <p>You are not currently assigned to any team in the platform.</p>
         <hr>
-        {% if request.user.groups.all.0.name == 'Advisor' %}
-            <p class="mb-0">Please wait for incoming team requests.</p>
+        {% if request.user.groups.first.name == 'Advisor' %}
+        <p class="mb-0">Please wait for incoming team requests.</p>
         {% else %}
-            <a href="{% url 'create_team_request' %}" class="btn btn-primary mt-2">Create Team Request</a>
+        <a href="{% url 'create_team_request' %}" class="btn btn-primary mt-2">Create Team Request</a>
         {% endif %}
     </div>
     {% endif %}

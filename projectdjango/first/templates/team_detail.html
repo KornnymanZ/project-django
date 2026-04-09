@@ -37,8 +37,7 @@
                     <div>
                         <small class="text-muted me-2">{{ post.created_at|date:"M d, Y h:i A" }}</small>
 
-                        {% if post.author == app_profile or request.user.groups.all.0.name == 'Advisor' or
-                        request.user.is_staff %}
+                        {% if post.author == app_profile or request.user.groups.first.name == 'Advisor' or request.user.is_staff %}
                         <form method="POST" action="{% url 'toggle_pin_post' post.id %}" class="d-inline">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-secondary"
