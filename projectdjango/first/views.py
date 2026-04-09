@@ -74,7 +74,7 @@ def team_detail(request, team_id):
             for f in files:
                 PostAttachment.objects.create(post=post, file=f)
                 
-            # Send notification to team members
+            # Send notification
             notify_team_of_new_post(post.id)
             
             # Check for due date and send reminder
@@ -147,6 +147,9 @@ def add_comment(request, post_id):
             for f in files:
                 CommentAttachment.objects.create(comment=comment, file=f)
                 
+            from .tasks import notify_author_of_new_comment
+            notify_author_of_new_comment(comment.id)
+                
     return redirect('team_detail', team_id=post.team.id)
 
 @login_required
@@ -192,15 +195,12 @@ def _proxy_download(file_field, filename):
     import cloudinary.utils
     import os
     
-    # Extract the public_id from the stored file name (e.g., "media/team_posts/Da_Sheet_abc123")
     file_name = file_field.name
     public_id = file_name
-    
-    # Strip file extension for the public_id (Cloudinary stores without extension in public_id)
+
     base, ext = os.path.splitext(file_name)
     file_format = ext.lstrip('.')  # e.g., "pdf"
     
-    # Generate a signed URL using the Cloudinary SDK (uses API credentials from settings)
     signed_url, _ = cloudinary.utils.cloudinary_url(
         base,
         resource_type="raw",
@@ -215,7 +215,7 @@ def _proxy_download(file_field, filename):
     resp = http_requests.get(signed_url, timeout=30)
     
     if resp.status_code != 200:
-        # Fallback: try the direct URL in case it's a non-PDF file that works normally
+        #Try download the url
         direct_url = file_field.url
         print(f"DEBUG PROXY: Signed URL failed ({resp.status_code}), trying direct: {direct_url}")
         resp = http_requests.get(direct_url, timeout=30)
@@ -231,3 +231,107 @@ def _proxy_download(file_field, filename):
     response = HttpResponse(resp.content, content_type=content_type)
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response
+
+from .models import TeamRequest, TeamRequestAttachment
+from .forms import TeamRequestForm, TeamResponseForm
+
+@login_required
+def toggle_pin_post(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    
+    is_author = (post.author.user_id == request.user.id)
+    is_advisor = request.user.groups.filter(name='Advisor').exists() or request.user.is_staff
+    
+    if not (is_author or is_advisor):
+        return redirect('team_detail', team_id=post.team.id)
+
+    if request.method == "POST":
+        post.is_pinned = not post.is_pinned
+        post.save()
+        
+    return redirect('team_detail', team_id=post.team.id)
+
+@login_required
+def create_team_request(request):
+    app_profile = getattr(request.user, 'app_profile', None)
+    if not app_profile:
+        return redirect('home')
+
+    if app_profile.teams.exists() and not request.user.groups.filter(name='Advisor').exists():
+        return redirect('team')
+
+    if request.method == "POST":
+        form = TeamRequestForm(request.POST, request.FILES, current_user=request.user)
+        if form.is_valid():
+            team_request = form.save(commit=False)
+            team_request.requested_by = app_profile
+            team_request.save()
+            form.save_m2m()
+
+            files = request.FILES.getlist('attachments')
+            for f in files:
+                TeamRequestAttachment.objects.create(team_request=team_request, file=f)
+
+            from .tasks import notify_advisors_of_team_request
+            notify_advisors_of_team_request(team_request.id)
+
+            return redirect('team')
+    else:
+        form = TeamRequestForm(current_user=request.user)
+
+    return render(request, 'create_team_request.html', {'form': form})
+
+@login_required
+def manage_team_requests(request):
+    if not request.user.groups.filter(name='Advisor').exists() and not request.user.is_staff:
+        return redirect('home')
+
+    app_profile = getattr(request.user, 'app_profile', None)
+    if not app_profile:
+        return redirect('home')
+
+    pending_requests = app_profile.advisor_requests.filter(status='Pending').order_by('-created_at')
+    
+    return render(request, 'manage_team_requests.html', {'requests': pending_requests})
+
+@login_required
+def respond_team_request(request, request_id):
+    if not request.user.groups.filter(name='Advisor').exists() and not request.user.is_staff:
+        return redirect('home')
+        
+    team_request = get_object_or_404(TeamRequest, id=request_id)
+    
+    if request.method == "POST":
+        form = TeamResponseForm(request.POST, instance=team_request)
+        action = request.POST.get('action')
+        
+        if form.is_valid():
+            team_request = form.save(commit=False)
+            team_request.responded_by = request.user.app_profile
+            
+            if action == 'approve':
+                team_request.status = 'Approved'
+                team_request.save()
+                
+                new_team = Team.objects.create(name=team_request.team_name)
+                
+                new_team.groupmembers.add(team_request.requested_by)
+                for member in team_request.proposed_members.all():
+                    new_team.groupmembers.add(member)
+                for advisor in team_request.proposed_advisors.all():
+                    new_team.groupmembers.add(advisor)
+                    
+            elif action == 'reject':
+                team_request.status = 'Rejected'
+                team_request.save()
+                
+            from .tasks import notify_student_of_request_decision
+            notify_student_of_request_decision(team_request.id)
+            
+            return redirect('manage_team_requests')
+            
+    else:
+        form = TeamResponseForm(instance=team_request)
+        
+    return render(request, 'respond_team_request.html', {'team_request': team_request, 'form': form})
+

@@ -29,3 +29,49 @@ def send_due_date_reminder(post_id):
             )
     except Post.DoesNotExist:
         pass
+
+from .models import Comment, TeamRequest
+
+def notify_author_of_new_comment(comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id)
+        post = comment.post
+        post_author = post.author
+        comment_author = comment.author
+        
+        if post_author != comment_author:
+            Notification.objects.create(
+                recipient=post_author,
+                message=f"[{post.team.name}] {comment_author.name} commented on your post '{post.title}'",
+                link=f"/team/{post.team.id}/#post-{post.id}"
+            )
+    except Comment.DoesNotExist:
+        pass
+
+def notify_advisors_of_team_request(request_id):
+    try:
+        team_request = TeamRequest.objects.get(id=request_id)
+        requester = team_request.requested_by
+        
+        for advisor in team_request.proposed_advisors.all():
+            Notification.objects.create(
+                recipient=advisor,
+                message=f"New team request '{team_request.team_name}' from {requester.name}",
+                link='/manage-team-requests/'  # We will define this URL shortly
+            )
+    except TeamRequest.DoesNotExist:
+        pass
+
+def notify_student_of_request_decision(request_id):
+    try:
+        team_request = TeamRequest.objects.get(id=request_id)
+        requester = team_request.requested_by
+        status = team_request.status
+        
+        Notification.objects.create(
+            recipient=requester,
+            message=f"Team request '{team_request.team_name}' was {status.lower()}.",
+            link='/team/'  # Route back to teams page
+        )
+    except TeamRequest.DoesNotExist:
+        pass

@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import AppUser, Team, Post, PostAttachment, Comment, CommentAttachment, Notification
 
 class AppUserSerializer(serializers.ModelSerializer):
+    name = serializers.ReadOnlyField()
+
     class Meta:
         model = AppUser
         fields = ['id', 'name', 'email', 'profile_picture']

@@ -14,5 +14,9 @@ urlpatterns = [
     path('profile/', views.profile_page, name='profile'),
     path('download/post/<int:attachment_id>/', views.download_post_attachment, name='download_post_attachment'),
     path('download/comment/<int:attachment_id>/', views.download_comment_attachment, name='download_comment_attachment'),
+    path('post/<int:post_id>/pin/', views.toggle_pin_post, name='toggle_pin_post'),
+    path('team/request/create/', views.create_team_request, name='create_team_request'),
+    path('team/requests/manage/', views.manage_team_requests, name='manage_team_requests'),
+    path('team/requests/respond/<int:request_id>/', views.respond_team_request, name='respond_team_request'),
 ]
  

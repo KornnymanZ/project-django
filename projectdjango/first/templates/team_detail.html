@@ -33,9 +33,18 @@
             {% for post in posts %}
             <div class="card shadow-sm mb-4" id="post-{{ post.id }}">
                 <div class="card-header d-flex justify-content-between align-items-center bg-body-tertiary">
-                    <strong class="text-body">{{ post.title }}</strong>
+                    <strong class="text-body">{% if post.is_pinned %}📌{% endif %} {{ post.title }}</strong>
                     <div>
                         <small class="text-muted me-2">{{ post.created_at|date:"M d, Y h:i A" }}</small>
+
+                        {% if post.author == app_profile or request.user.groups.all.0.name == 'Advisor' or request.user.is_staff %}
+                        <form method="POST" action="{% url 'toggle_pin_post' post.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="{% if post.is_pinned %}Unpin Post{% else %}Pin Post{% endif %}">
+                                {% if post.is_pinned %}📍 Unpin{% else %}📌 Pin{% endif %}
+                            </button>
+                        </form>
+                        {% endif %}
 
                         {% if post.author == app_profile %}
                         <a href="{% url 'edit_post' post.id %}" class="btn btn-sm btn-outline-primary"

@@ -7,12 +7,12 @@ from .models import AppUser
 
 @receiver(user_signed_up)
 def link_to_app_user(sender, request, user, **kwargs):
-    # 1. Look for a pre-registered AppUser with this email
+    #Check for same email
     email = user.email
     app_profile = AppUser.objects.filter(email=email, user__isnull=True).first()
 
     if app_profile:
-        # 2. Link the new Social Auth User to the existing AppUser
+        # 2. Link the new user to AppUser
         app_profile.user = user
         app_profile.email = email
         app_profile.save()
@@ -31,23 +31,18 @@ def set_user_group(sender, request, user, **kwargs):
             user.is_staff = True
             user.save()
 
-    # Ensure the AppUser is linked to this user if it exists and isn't linked
+    #Check if user is linked
     try:
         app_profile = user.app_profile
     except AppUser.DoesNotExist:
         app_profile = None
 
     if app_profile is not None:
-        # If it's linked but missing a name, fill it in!
-        if not app_profile.name and (user.first_name or user.last_name):
-            app_profile.name = f"{user.first_name} {user.last_name}".strip()
-            app_profile.save()
+        pass
     elif email:
         app_profile = AppUser.objects.filter(email=email, user__isnull=True).first()
         if app_profile:
             app_profile.user = user
-            if not app_profile.name and (user.first_name or user.last_name):
-                app_profile.name = f"{user.first_name} {user.last_name}".strip()
             app_profile.save()
             print(f"DEBUG: Auto-linked pre-made User to AppUser for {email}")
 

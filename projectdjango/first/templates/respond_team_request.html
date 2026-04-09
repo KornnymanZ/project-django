@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-primary">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Review Team Request</h4>
+                    <span class="badge bg-light text-dark">{{ team_request.status }}</span>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-primary">{{ team_request.team_name }}</h5>
+                    
+                    <div class="mb-4 mt-3 bg-body-tertiary p-3 rounded">
+                        <p class="mb-1"><strong>Requested by:</strong> {{ team_request.requested_by.name }}</p>
+                        <p class="mb-1"><strong>Date Submitted:</strong> {{ team_request.created_at|date:"M d, Y h:i A" }}</p>
+                    </div>
+
+                    <h6 class="fw-bold">Description:</h6>
+                    <p class="mb-4 ps-2 border-start border-3 border-secondary">{{ team_request.description|linebreaks }}</p>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6 class="fw-bold border-bottom pb-2">Proposed Members</h6>
+                            {% if team_request.proposed_members.all %}
+                            <ul class="list-unstyled ps-2">
+                                {% for member in team_request.proposed_members.all %}
+                                <li>👤 {{ member.name }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <p class="text-muted ps-2">None</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="fw-bold border-bottom pb-2">Proposed Advisors</h6>
+                            <ul class="list-unstyled ps-2">
+                                {% for adv in team_request.proposed_advisors.all %}
+                                <li>🧑‍🏫 {{ adv.name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+
+                    {% if team_request.attachments.all %}
+                    <h6 class="fw-bold border-bottom pb-2">Attachments</h6>
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        {% for attach in team_request.attachments.all %}
+                        <a href="{{ attach.download_url }}" target="_blank" class="badge bg-secondary text-decoration-none p-2">
+                            📎 {{ attach.filename }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-4">
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <h6 class="fw-bold">Your Response</h6>
+                        <div class="mb-3">
+                            {{ form.advisor_feedback }}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'manage_team_requests' %}" class="btn btn-outline-secondary">Cancel</a>
+                            <div>
+                                <button type="submit" name="action" value="reject" class="btn btn-danger me-2">Deny Request</button>
+                                <button type="submit" name="action" value="approve" class="btn btn-success">Approve & Create Team</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Incoming Team Requests</h2>
+        <a href="{% url 'team' %}" class="btn btn-secondary">Back to Teams</a>
+    </div>
+
+    {% if requests %}
+    <div class="row">
+        {% for req in requests %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">Request: {{ req.team_name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><strong>Requested by:</strong> {{ req.requested_by.name }}</p>
+                    <p class="mb-2"><strong>Date:</strong> {{ req.created_at|date:"M d, Y" }}</p>
+                    <hr>
+                    <p class="mb-3 text-truncate">{{ req.description }}</p>
+                    
+                    <a href="{% url 'respond_team_request' req.id %}" class="btn btn-primary w-100">Review Request</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-success shadow-sm text-center" role="alert">
+        <h4 class="alert-heading">All caught up!</h4>
+        <p class="mb-0">You have no pending team requests to review.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -5,7 +5,6 @@ from cloudinary_storage.storage import RawMediaCloudinaryStorage
 # Create your models here.
 class AppUser(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, blank = True, null = True, related_name='app_profile')
-    name = models.CharField(max_length=70)
     email = models.EmailField(unique=True)
     sid = models.CharField(max_length=50, unique=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pics/', storage=RawMediaCloudinaryStorage(), null=True, blank=True)
@@ -14,6 +13,12 @@ class AppUser(models.Model):
 
     def __str__(self):
         return self.email
+
+    @property
+    def name(self):
+        if self.user:
+            return self.user.get_full_name() or self.user.username
+        return self.email.split('@')[0] if self.email else "Anonymous"
 
     @property
     def unread_notifications(self):
@@ -31,11 +36,12 @@ class Post(models.Model):
     author = models.ForeignKey(AppUser, on_delete=models.CASCADE)
     title = models.CharField(max_length=200)
     body = models.TextField()
+    is_pinned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     due_date = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-is_pinned', '-created_at']
 
     def __str__(self):
         return f"{self.title} by {self.author.name}"
@@ -104,3 +110,46 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"Notification for {self.recipient.name}: {self.message}"
+
+class TeamRequest(models.Model):
+    STATUS_CHOICES = (
+        ('Pending', 'Pending'),
+        ('Approved', 'Approved'),
+        ('Rejected', 'Rejected'),
+    )
+    team_name = models.CharField('Proposed Team Name', max_length=100)
+    description = models.TextField('Project/Team Description')
+    requested_by = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='requests_made')
+    proposed_members = models.ManyToManyField(AppUser, related_name='team_invitations')
+    proposed_advisors = models.ManyToManyField(AppUser, related_name='advisor_requests')
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    advisor_feedback = models.TextField('Advisor Feedback', blank=True, null=True)
+    responded_by = models.ForeignKey(AppUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='requests_responded')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Request for {self.team_name} by {self.requested_by.name}"
+
+class TeamRequestAttachment(models.Model):
+    team_request = models.ForeignKey(TeamRequest, on_delete=models.CASCADE, related_name='attachments')
+    file = models.FileField(upload_to='team_requests/', storage=RawMediaCloudinaryStorage())
+
+    @property
+    def filename(self):
+        import os
+        return os.path.basename(self.file.name)
+
+    @property
+    def download_url(self):
+        url = self.file.url
+        if 'upload/' in url:
+            return url.replace('upload/', 'upload/fl_attachment/')
+        return url
+
+    def __str__(self):
+        return self.filename
