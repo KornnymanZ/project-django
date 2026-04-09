@@ -38,16 +38,47 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="alert alert-info shadow-sm" role="alert">
-        <h4 class="alert-heading">No Teams Yet!</h4>
-        <p>You are not currently assigned to any team in the platform.</p>
-        <hr>
-        {% if request.user.groups.first.name == 'Advisor' %}
-        <p class="mb-0">Please wait for incoming team requests.</p>
-        {% else %}
-        <a href="{% url 'create_team_request' %}" class="btn btn-primary mt-2">Create Team Request</a>
-        {% endif %}
+    <div class="card shadow-sm border-secondary-subtle bg-body-tertiary">
+        <div class="card-body py-5 text-center">
+            <h4 class="card-title fw-bold">No Teams Yet!</h4>
+            <p class="text-body-secondary mb-4">You are not currently assigned to any team in the platform.</p>
+            
+            {% if request.user.groups.first.name == 'Advisor' %}
+            <p class="mb-0 text-muted">Please wait for incoming team requests.</p>
+            {% else %}
+            <a href="{% url 'create_team_request' %}" class="btn btn-primary px-4 shadow-sm">Create Team Request</a>
+            {% endif %}
+        </div>
     </div>
+    
+    {% if not teams and requests_made %}
+    <h3 class="mt-5 mb-4 border-bottom pb-2">Your Past Requests</h3>
+    <div class="row">
+        {% for req in requests_made %}
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm h-100 border-{% if req.status == 'Approved' %}success{% elif req.status == 'Rejected' %}danger{% else %}warning{% endif %}">
+                <div class="card-header bg-{% if req.status == 'Approved' %}success{% elif req.status == 'Rejected' %}danger{% else %}warning{% endif %} {% if req.status == 'Pending' %}text-dark{% else %}text-white{% endif %}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{ req.team_name }}</h5>
+                        <span class="badge bg-light text-dark shadow-sm">{{ req.status }}</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3"><small>Submitted on {{ req.created_at|date:"M d, Y" }}</small></p>
+                    <p class="mb-3">{{ req.description|truncatewords:20 }}</p>
+                    {% if req.advisor_feedback %}
+                    <hr>
+                    <div class="p-3 {% if req.status == 'Rejected' %}bg-danger-subtle{% else %}bg-success-subtle{% endif %} rounded border">
+                        <strong class="{% if req.status == 'Rejected' %}text-danger{% else %}text-success{% endif %}">Advisor Feedback:</strong>
+                        <p class="mb-0 mt-1" style="font-size: 0.95rem;">{{ req.advisor_feedback|linebreaksbr }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endif %}
 </div>
 {% endblock %}

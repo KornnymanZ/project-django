@@ -45,9 +45,11 @@ def home(request):
 @login_required
 def team_page(request):
     teams = []
+    requests_made = []
     if hasattr(request.user, 'app_profile') and request.user.app_profile:
         teams = request.user.app_profile.teams.prefetch_related('groupmembers').all()
-    return render(request, 'team.html', {'teams': teams})
+        requests_made = request.user.app_profile.requests_made.all().order_by('-created_at')
+    return render(request, 'team.html', {'teams': teams, 'requests_made': requests_made})
 
 @login_required
 def team_detail(request, team_id):
