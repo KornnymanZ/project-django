@@ -43,6 +43,13 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'team' %}">My Team</a>
         </li>
+        {% for group in request.user.groups.all %}
+          {% if group.name == 'Advisor' %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'manage_team_requests' %}">Requests</a>
+          </li>
+          {% endif %}
+        {% endfor %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'logout' %}">Logout</a>
         </li>

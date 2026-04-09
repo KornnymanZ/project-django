@@ -57,7 +57,7 @@ def notify_advisors_of_team_request(request_id):
             Notification.objects.create(
                 recipient=advisor,
                 message=f"New team request '{team_request.team_name}' from {requester.name}",
-                link='/manage-team-requests/'  # We will define this URL shortly
+                link='/team/requests/manage/'
             )
     except TeamRequest.DoesNotExist:
         pass
